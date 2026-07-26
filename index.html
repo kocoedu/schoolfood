@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🍱 AI 급식 영양 분석 도우미 - Stitch Design</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#10B981">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="급식 영양사">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/10b981/ffffff?text=급식AI">
+    
+    <!-- Manifest File Link -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"AI 급식 영양 분석 도우미","short_name":"급식영양AI","start_url":".","display":"standalone","background_color":"#F8FAFC","theme_color":"#10B981","icons":[{"src":"https://placehold.co/192x192/10b981/ffffff?text=급식AI","sizes":"192x192","type":"image/png"}]}'>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: ['class', '[data-theme="dark"]'],
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        '2xl': '1.25rem',
+                        '3xl': '1.75rem',
+                        '4xl': '2.25rem',
+                    },
+                    boxShadow: {
+                        'stitch': '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03)',
+                        'stitch-hover': '0 20px 35px -8px rgba(16, 185, 129, 0.15)',
+                        'float': '0 12px 28px -6px var(--shadow-color)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root, [data-theme="light"] {
+            --bg-main: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --text-muted: #94a3b8;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --primary-light: #ecfdf5;
+            --primary-dark: #047857;
+            --primary-text: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(16, 185, 129, 0.22);
+            --header-bg: rgba(255, 255, 255, 0.88);
+            --bottom-nav-bg: rgba(255, 255, 255, 0.92);
+            --chart-grid: rgba(226, 232, 240, 0.8);
+            --chart-text: #64748b;
+            --chart-c1: #3b82f6; /* Carbohydrates: Blue */
+            --chart-c2: #10b981; /* Protein: Emerald */
+            --chart-c3: #f59e0b; /* Fat: Amber */
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #090d16;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-subtle: #374151;
+            --text-main: #f9fafb;
+            --text-sub: #9ca3af;
+            --text-muted: #6b7280;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --primary-light: #064e3b;
+            --primary-dark: #34d399;
+            --primary-text: #ffffff;
+            --border-color: #374151;
+            --shadow-color: rgba(16, 185, 129, 0.3);
+            --header-bg: rgba(17, 24, 39, 0.88);
+            --bottom-nav-bg: rgba(17, 24, 39, 0.92);
+            --chart-grid: rgba(55, 65, 81, 0.5);
+            --chart-text: #9ca3af;
+            --chart-c1: #60a5fa;
+            --chart-c2: #34d399;
+            --chart-c3: #fbbf24;
+        }
+
+        [data-theme="pastel"] {
+            --bg-main: #fdf4f8;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-subtle: #fae8ff;
+            --text-main: #4a3b52;
+            --text-sub: #7e6988;
+            --text-muted: #a797b0;
+            --primary: #ec4899;
+            --primary-hover: #db2777;
+            --primary-light: #fce7f3;
+            --primary-dark: #be185d;
+            --primary-text: #ffffff;
+            --border-color: #f5d0fe;
+            --shadow-color: rgba(236, 72, 153, 0.22);
+            --header-bg: rgba(255, 255, 255, 0.88);
+            --bottom-nav-bg: rgba(255, 255, 255, 0.92);
+            --chart-grid: rgba(245, 208, 254, 0.6);
+            --chart-text: #7e6988;
+            --chart-c1: #38bdf8;
+            --chart-c2: #ec4899;
+            --chart-c3: #f59e0b;
+        }
+
+        [data-theme="nature"] {
+            --bg-main: #f2f7f2;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-subtle: #e2ebe2;
+            --text-main: #1b381e;
+            --text-sub: #456348;
+            --text-muted: #79977c;
+            --primary: #2e7d32;
+            --primary-hover: #1b5e20;
+            --primary-light: #e8f5e9;
+            --primary-dark: #003300;
+            --primary-text: #ffffff;
+            --border-color: #c8e6c9;
+            --shadow-color: rgba(46, 125, 50, 0.22);
+            --header-bg: rgba(255, 255, 255, 0.88);
+            --bottom-nav-bg: rgba(255, 255, 255, 0.92);
+            --chart-grid: rgba(200, 230, 201, 0.6);
+            --chart-text: #456348;
+            --chart-c1: #2563eb;
+            --chart-c2: #2e7d32;
+            --chart-c3: #d97706;
+        }
+
+        [data-theme="ocean"] {
+            --bg-main: #f0f7ff;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-subtle: #e0f2fe;
+            --text-main: #0c4a6e;
+            --text-sub: #0369a1;
+            --text-muted: #38bdf8;
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --primary-light: #e0f2fe;
+            --primary-dark: #075985;
+            --primary-text: #ffffff;
+            --border-color: #bae6fd;
+            --shadow-color: rgba(2, 132, 199, 0.22);
+            --header-bg: rgba(255, 255, 255, 0.88);
+            --bottom-nav-bg: rgba(255, 255, 255, 0.92);
+            --chart-grid: rgba(186, 230, 253, 0.6);
+            --chart-text: #0369a1;
+            --chart-c1: #0284c7;
+            --chart-c2: #10b981;
+            --chart-c3: #f59e0b;
+        }
+
+        [data-theme="warm"] {
+            --bg-main: #fffbeb;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --bg-subtle: #fef3c7;
+            --text-main: #78350f;
+            --text-sub: #b45309;
+            --text-muted: #f59e0b;
+            --primary: #f97316;
+            --primary-hover: #ea580c;
+            --primary-light: #ffedd5;
+            --primary-dark: #c2410c;
+            --primary-text: #ffffff;
+            --border-color: #fde68a;
+            --shadow-color: rgba(249, 115, 22, 0.22);
+            --header-bg: rgba(255, 255, 255, 0.88);
+            --bottom-nav-bg: rgba(255, 255, 255, 0.92);
+            --chart-grid: rgba(253, 230, 138, 0.6);
+            --chart-text: #b45309;
+            --chart-c1: #2563eb;
+            --chart-c2: #10b981;
+            --chart-c3: #f97316;
+        }
+
+        *, *::before, *::after {
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        .theme-bg-main { background-color: var(--bg-main); }
+        .theme-bg-card { background-color: var(--bg-card); }
+        .theme-bg-subtle { background-color: var(--bg-subtle); }
+        .theme-text-main { color: var(--text-main); }
+        .theme-text-sub { color: var(--text-sub); }
+        .theme-text-muted { color: var(--text-muted); }
+        .theme-border { border-color: var(--border-color); }
+
+        .theme-btn-primary {
+            background-color: var(--primary);
+            color: var(--primary-text);
+        }
+        .theme-btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        .theme-text-primary {
+            color: var(--primary);
+        }
+        .theme-bg-primary-light {
+            background-color: var(--primary-light);
+        }
+
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple::after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.35) 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .4s, opacity .8s;
+        }
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes skeleton-pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        .skeleton {
+            background-color: var(--bg-subtle);
+            animation: skeleton-pulse 1.4s infinite ease-in-out;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="h-full flex justify-center items-center antialiased selection:bg-emerald-500 selection:text-white">
+
+    <div id="app-viewport" class="w-full max-w-md theme-bg-main h-full sm:h-[92vh] sm:rounded-[40px] flex flex-col shadow-2xl relative overflow-hidden border theme-border transition-all duration-300">
+
+        <!-- Top Header Bar -->
+        <header class="px-5 py-4 sticky top-0 z-30 border-b theme-border flex justify-between items-center backdrop-blur-xl transition-all" style="background-color: var(--header-bg);">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl theme-btn-primary flex items-center justify-center font-bold text-xl shadow-stitch transition-transform active:scale-95">
+                    🍱
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold leading-tight tracking-tight theme-text-main flex items-center gap-1.5">
+                        급식 영양 도우미
+                        <span class="text-[9px] px-1.5 py-0.5 rounded-full theme-bg-primary-light theme-text-primary font-black uppercase tracking-wider">AI Stitch</span>
+                    </h1>
+                    <p class="text-[11px] theme-text-muted font-medium">Smart Nutrition Assistant</p>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center space-x-2">
+                <button id="dark-mode-toggle" title="빠른 테마 전환" class="w-10 h-10 rounded-2xl theme-bg-subtle theme-text-sub flex items-center justify-center hover:opacity-80 transition-all active:scale-90 border theme-border">
+                    <span class="material-symbols-outlined text-[20px]" id="theme-toggle-icon">palette</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-28 relative" id="main-scroll-area">
+
+            <!-- TAB 1: HOME (홈) -->
+            <section id="tab-home" class="tab-content active space-y-4">
+                <!-- Banner Greeting Card -->
+                <div class="theme-btn-primary rounded-3xl p-6 shadow-float relative overflow-hidden transition-all duration-300">
+                    <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-white/15 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span id="current-date-badge" class="text-[11px] font-bold px-3 py-1 bg-white/20 backdrop-blur-md rounded-full tracking-wide">2026년 7월 26일 (일)</span>
+                        <span class="text-[10px] bg-black/20 text-white px-2.5 py-0.5 rounded-full font-extrabold border border-white/20 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span> Gemini 2.5
+                        </span>
+                    </div>
+                    <h2 class="text-2xl font-black mt-1 tracking-tight leading-snug">오늘도 건강하고<br/>맛있는 학교 급식!</h2>
+                    <p class="text-xs opacity-90 mt-2 font-medium leading-relaxed">사진 한 장으로 칼로리 및 탄·단·지 영양 균형을 3초 만에 분석해보세요.</p>
+                </div>
+
+                <!-- Camera Upload Dropzone Card -->
+                <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-4 transition-all">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold theme-text-main flex items-center gap-2 text-sm">
+                            <span class="material-symbols-outlined theme-text-primary text-xl">photo_camera</span>
+                            급식 식판 촬영 / 업로드
+                        </h3>
+                        <span class="text-[10px] px-2 py-0.5 rounded-md theme-bg-subtle theme-text-muted font-semibold">자동 리사이징 지원</span>
+                    </div>
+
+                    <!-- Dropzone Area -->
+                    <div id="image-dropzone" class="border-2 border-dashed theme-border rounded-2xl p-6 transition-all text-center flex flex-col items-center justify-center min-h-[210px] cursor-pointer theme-bg-subtle relative overflow-hidden group hover:border-emerald-500/50">
+                        
+                        <!-- Upload Placeholder UI -->
+                        <div id="upload-placeholder" class="flex flex-col items-center space-y-2.5">
+                            <div class="w-16 h-16 rounded-2xl theme-bg-primary-light theme-text-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                                <span class="material-symbols-outlined text-3xl">add_a_photo</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold theme-text-main">터치하여 급식 사진 첨부</p>
+                                <p class="text-[11px] theme-text-muted mt-0.5">카메라 직접 촬영 또는 갤러리 선택</p>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview Container -->
+                        <div id="upload-preview-container" class="hidden absolute inset-0 w-full h-full bg-slate-950">
+                            <img id="upload-preview-img" class="w-full h-full object-cover" src="" alt="식단 미리보기">
+                            <button id="remove-image-btn" title="사진 지우기" class="absolute top-3 right-3 bg-black/75 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg active:scale-90">
+                                <span class="material-symbols-outlined text-base">close</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Input -->
+                    <input type="file" id="meal-file-input" accept="image/*" capture="environment" class="hidden">
+
+                    <!-- Button Controls -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button id="btn-camera" class="py-3 px-4 rounded-2xl theme-bg-subtle theme-text-main hover:opacity-80 text-xs font-bold flex items-center justify-center gap-2 border theme-border transition-all active:scale-95">
+                            <span class="material-symbols-outlined text-lg theme-text-primary">photo_camera</span>
+                            카메라 촬영
+                        </button>
+                        <button id="btn-gallery" class="py-3 px-4 rounded-2xl theme-bg-subtle theme-text-main hover:opacity-80 text-xs font-bold flex items-center justify-center gap-2 border theme-border transition-all active:scale-95">
+                            <span class="material-symbols-outlined text-lg theme-text-primary">collections</span>
+                            갤러리 선택
+                        </button>
+                    </div>
+
+                    <!-- Action Trigger Button -->
+                    <button id="btn-analyze" disabled class="w-full py-4 rounded-2xl theme-btn-primary disabled:opacity-40 text-white font-extrabold text-base shadow-float transition-all flex items-center justify-center gap-2 ripple disabled:shadow-none active:scale-[0.98]">
+                        <span class="material-symbols-outlined text-xl">auto_awesome</span>
+                        AI 영양 분석 시작하기
+                    </button>
+                </div>
+
+                <!-- Tip Card -->
+                <div class="theme-bg-subtle border theme-border rounded-2xl p-4 flex items-start space-x-3">
+                    <span class="material-symbols-outlined theme-text-primary text-xl mt-0.5">tips_and_updates</span>
+                    <div class="text-xs theme-text-sub leading-relaxed">
+                        <strong class="font-bold block mb-0.5 theme-text-main">촬영 팁!</strong>
+                        식판 수저와 반찬이 수직(Top-down)으로 잘 보이도록 찍으면 Gemini AI가 더 정확하게 감지합니다.
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: NUTRITION ANALYSIS (영양 분석) -->
+            <section id="tab-analysis" class="tab-content space-y-4">
+                
+                <!-- Loading Skeleton -->
+                <div id="analysis-skeleton" class="hidden space-y-4">
+                    <div class="theme-bg-card rounded-3xl p-6 border theme-border space-y-4 shadow-stitch">
+                        <div class="h-6 w-1/3 skeleton rounded-lg"></div>
+                        <div class="h-32 skeleton rounded-2xl"></div>
+                        <div class="h-20 skeleton rounded-2xl"></div>
+                        <div class="h-28 skeleton rounded-2xl"></div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="analysis-empty" class="theme-bg-card rounded-3xl p-8 border theme-border text-center space-y-3.5 shadow-stitch">
+                    <div class="w-16 h-16 rounded-2xl theme-bg-primary-light theme-text-primary flex items-center justify-center mx-auto shadow-sm">
+                        <span class="material-symbols-outlined text-3xl">analytics</span>
+                    </div>
+                    <h3 class="font-extrabold theme-text-main text-lg">분석된 급식 데이터가 없습니다</h3>
+                    <p class="text-xs theme-text-sub max-w-xs mx-auto leading-relaxed">홈 화면에서 급식 사진을 선택한 후 영양 분석을 실행해보세요.</p>
+                    <button onclick="switchTab('home')" class="px-5 py-3 rounded-2xl theme-btn-primary text-xs font-bold shadow-md transition-all active:scale-95">
+                        사진 업로드하러 가기
+                    </button>
+                </div>
+
+                <!-- Active Result Container -->
+                <div id="analysis-result-content" class="hidden space-y-4">
+                    
+                    <!-- Score & Calories Header Card -->
+                    <div class="theme-bg-card rounded-3xl p-6 border theme-border shadow-stitch space-y-4">
+                        <div class="flex items-center justify-between border-b theme-border pb-3">
+                            <div>
+                                <span id="res-date" class="text-[11px] font-semibold theme-text-muted">2026.07.26</span>
+                                <h3 class="font-extrabold theme-text-main text-base mt-0.5">오늘의 급식 영양 진단</h3>
+                            </div>
+                            <span class="px-3 py-1 theme-bg-primary-light theme-text-primary text-xs font-extrabold rounded-full border border-emerald-500/20">Gemini Vision</span>
+                        </div>
+
+                        <!-- Gauge Ring & Calories -->
+                        <div class="flex items-center justify-around py-2">
+                            <!-- Circular Gauge -->
+                            <div class="relative w-28 h-28 flex items-center justify-center">
+                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                    <path class="theme-text-sub opacity-15" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path id="score-gauge-path" style="stroke: var(--primary);" stroke-dasharray="0, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <div class="absolute flex flex-col items-center">
+                                    <span id="res-health-score" class="text-3xl font-black theme-text-main tracking-tight">88</span>
+                                    <span class="text-[10px] font-bold theme-text-muted uppercase">건강 점수</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1 text-left">
+                                <p class="text-xs font-semibold theme-text-sub">총 예상 칼로리</p>
+                                <p class="text-3xl font-black theme-text-primary tracking-tight"><span id="res-total-calories">750</span> <span class="text-xs font-normal theme-text-sub">kcal</span></p>
+                                <p class="text-[11px] theme-text-sub">일일 권장량의 약 <strong id="res-cal-percent" class="theme-text-main font-bold">38%</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Food Menu List -->
+                    <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch">
+                        <h4 class="font-bold text-sm theme-text-main mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined theme-text-primary text-lg">restaurant_menu</span>
+                            감지된 급식 메뉴 목록
+                        </h4>
+                        <ul id="res-food-list" class="divide-y theme-border text-xs">
+                            <!-- Items injected dynamically -->
+                        </ul>
+                    </div>
+
+                    <!-- Macronutrient Donut Chart -->
+                    <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch">
+                        <h4 class="font-bold text-sm theme-text-main mb-1 flex items-center gap-2">
+                            <span class="material-symbols-outlined theme-text-primary text-lg">pie_chart</span>
+                            3대 영양소 비율 (탄·단·지)
+                        </h4>
+                        <p class="text-[11px] theme-text-muted mb-3">탄수화물(Blue) / 단백질(Emerald) / 지방(Amber)</p>
+
+                        <div class="w-full h-48 relative flex items-center justify-center my-2">
+                            <canvas id="macroDonutChart"></canvas>
+                        </div>
+
+                        <!-- Nutrient Summary Badges -->
+                        <div class="grid grid-cols-3 gap-2 text-center mt-3 pt-3 border-t theme-border text-xs">
+                            <div class="p-2.5 rounded-2xl theme-bg-subtle border theme-border">
+                                <span class="block theme-text-sub font-bold text-[10px] mb-1 flex items-center justify-center gap-1">
+                                    <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: var(--chart-c1);"></span>
+                                    탄수화물
+                                </span>
+                                <strong id="res-carbo" class="theme-text-main text-sm font-extrabold">95g</strong>
+                            </div>
+                            <div class="p-2.5 rounded-2xl theme-bg-subtle border theme-border">
+                                <span class="block theme-text-sub font-bold text-[10px] mb-1 flex items-center justify-center gap-1">
+                                    <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: var(--chart-c2);"></span>
+                                    단백질
+                                </span>
+                                <strong id="res-protein" class="theme-text-main text-sm font-extrabold">32g</strong>
+                            </div>
+                            <div class="p-2.5 rounded-2xl theme-bg-subtle border theme-border">
+                                <span class="block theme-text-sub font-bold text-[10px] mb-1 flex items-center justify-center gap-1">
+                                    <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: var(--chart-c3);"></span>
+                                    지방
+                                </span>
+                                <strong id="res-fat" class="theme-text-main text-sm font-extrabold">18g</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Nutritionist Comment Box -->
+                    <div class="theme-bg-subtle border theme-border rounded-3xl p-5 shadow-stitch space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full theme-btn-primary flex items-center justify-center font-bold text-sm shadow-sm">
+                                👩‍⚕️
+                            </div>
+                            <h4 class="font-bold theme-text-main text-sm">AI 영양 가디언 코멘트</h4>
+                        </div>
+                        <p id="res-ai-comment" class="text-xs theme-text-sub leading-relaxed pt-1 font-medium">
+                            오늘 급식은 단백질과 비타민의 비율이 아주 훌륭합니다! 식후 가벼운 산책과 함께 수분을 충분히 섭취하면 더욱 완벽한 피트니스가 될 수 있습니다.
+                        </p>
+                    </div>
+
+                    <!-- Save CTA -->
+                    <button id="btn-save-record" class="w-full py-4 rounded-2xl theme-btn-primary font-extrabold text-sm shadow-float transition-all flex items-center justify-center gap-2 ripple active:scale-95">
+                        <span class="material-symbols-outlined text-lg">bookmark</span>
+                        식사 기록에 저장하기
+                    </button>
+                </div>
+            </section>
+
+            <!-- TAB 3: MEAL HISTORY (식사 기록) -->
+            <section id="tab-history" class="tab-content space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-extrabold theme-text-main">나의 식사 기록</h2>
+                        <p class="text-xs theme-text-sub">저장된 급식 영양 분석 리포트</p>
+                    </div>
+                    <button id="btn-clear-history" class="text-xs text-rose-500 hover:text-rose-600 font-bold px-3 py-1.5 rounded-xl hover:bg-rose-50/50 transition-all border border-rose-200/40">
+                        전체 삭제
+                    </button>
+                </div>
+
+                <!-- History Card List -->
+                <div id="history-list" class="space-y-3">
+                    <!-- Cards generated dynamically -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="history-empty" class="hidden theme-bg-card rounded-3xl p-8 border theme-border text-center space-y-3 shadow-stitch">
+                    <div class="w-16 h-16 rounded-2xl theme-bg-subtle theme-text-sub flex items-center justify-center mx-auto">
+                        <span class="material-symbols-outlined text-3xl">history</span>
+                    </div>
+                    <p class="text-sm font-bold theme-text-main">저장된 식사 기록이 없습니다.</p>
+                    <p class="text-xs theme-text-sub">영양 분석 결과를 식사 기록에 보관해보세요.</p>
+                </div>
+            </section>
+
+            <!-- TAB 4: COMMUNITY BOARD (게시판) -->
+            <section id="tab-board" class="tab-content space-y-4">
+                <div>
+                    <h2 class="text-lg font-extrabold theme-text-main">오늘의 급식 소통 게시판</h2>
+                    <p class="text-xs theme-text-sub">친구들과 함께 오늘 급식을 공유하고 평점을 남겨보세요.</p>
+                </div>
+
+                <!-- Post Creation Form -->
+                <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-3">
+                    <input type="text" id="board-nickname" placeholder="닉네임 (예: 급식탐험가)" class="w-full px-4 py-3 text-xs theme-bg-subtle border theme-border rounded-2xl focus:outline-none theme-text-main font-semibold">
+
+                    <!-- Star Selector -->
+                    <div class="flex items-center justify-between theme-bg-subtle p-3.5 rounded-2xl border theme-border">
+                        <span class="text-xs font-bold theme-text-sub">오늘 급식 별점:</span>
+                        <div id="star-rating-selector" class="flex space-x-1 cursor-pointer text-amber-400">
+                            <span class="material-symbols-outlined star-btn text-2xl transition-transform active:scale-125" data-value="1">star</span>
+                            <span class="material-symbols-outlined star-btn text-2xl transition-transform active:scale-125" data-value="2">star</span>
+                            <span class="material-symbols-outlined star-btn text-2xl transition-transform active:scale-125" data-value="3">star</span>
+                            <span class="material-symbols-outlined star-btn text-2xl transition-transform active:scale-125" data-value="4">star</span>
+                            <span class="material-symbols-outlined star-btn text-2xl transition-transform active:scale-125" data-value="5">star</span>
+                        </div>
+                    </div>
+
+                    <textarea id="board-content" rows="2" placeholder="오늘 급식 한줄평이나 맛 후기를 자유롭게 입력하세요!" class="w-full p-3.5 text-xs theme-bg-subtle border theme-border rounded-2xl focus:outline-none theme-text-main resize-none font-medium"></textarea>
+
+                    <button id="btn-submit-post" class="w-full py-3.5 rounded-2xl theme-btn-primary font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 ripple active:scale-95">
+                        <span class="material-symbols-outlined text-base">send</span>
+                        등록하기
+                    </button>
+                </div>
+
+                <!-- Posts Feed List -->
+                <div id="board-feed" class="space-y-3">
+                    <!-- Dynamic Posts -->
+                </div>
+            </section>
+
+            <!-- TAB 5: MY PAGE & APP SETTINGS (마이페이지) -->
+            <section id="tab-mypage" class="tab-content space-y-4">
+                <!-- User Profile Banner -->
+                <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div id="user-profile-icon" class="w-14 h-14 rounded-2xl theme-btn-primary flex items-center justify-center font-extrabold text-2xl shadow-md">
+                            🧑‍🎓
+                        </div>
+                        <div>
+                            <h3 id="user-profile-name" class="font-extrabold text-base theme-text-main">건강한 학생 회원</h3>
+                            <p id="user-profile-school" class="text-xs theme-text-primary font-bold">서울고등학교 2학년</p>
+                            <span id="user-profile-badge" class="inline-block mt-1 text-[10px] px-2.5 py-0.5 theme-bg-primary-light theme-text-primary rounded-md font-extrabold border border-emerald-500/20">급식 영양 가디언 3급</span>
+                        </div>
+                    </div>
+                    <button id="btn-edit-profile" title="프로필 수정" class="w-9 h-9 rounded-2xl theme-bg-subtle theme-text-sub flex items-center justify-center hover:opacity-80 transition-all active:scale-90 border theme-border">
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                    </button>
+                </div>
+
+                <!-- Summary Stats Badge -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="theme-bg-card p-3.5 rounded-2xl border theme-border text-center shadow-stitch">
+                        <span class="text-[10px] theme-text-muted font-bold block">총 분석 횟수</span>
+                        <strong id="stat-total-count" class="text-base font-black theme-text-main">12회</strong>
+                    </div>
+                    <div class="theme-bg-card p-3.5 rounded-2xl border theme-border text-center shadow-stitch">
+                        <span class="text-[10px] theme-text-muted font-bold block">평균 건강점수</span>
+                        <strong id="stat-avg-score" class="text-base font-black theme-text-primary">85점</strong>
+                    </div>
+                    <div class="theme-bg-card p-3.5 rounded-2xl border theme-border text-center shadow-stitch">
+                        <span class="text-[10px] theme-text-muted font-bold block">주간 평균 Kcal</span>
+                        <strong id="stat-weekly-cal" class="text-base font-black theme-text-main">740k</strong>
+                    </div>
+                </div>
+
+                <!-- STITCH THEME SELECTOR GRID (6 Color Presets) -->
+                <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-3">
+                    <div class="flex items-center justify-between border-b theme-border pb-2.5">
+                        <h4 class="font-bold text-sm theme-text-main flex items-center gap-1.5">
+                            <span class="material-symbols-outlined theme-text-primary text-lg">palette</span>
+                            앱 디자인 테마 설정
+                        </h4>
+                        <span class="text-[10px] theme-text-muted font-bold">6 Preset Themes</span>
+                    </div>
+                    
+                    <p class="text-xs theme-text-sub font-medium">취향에 맞는 스타일 테마를 선택해보세요.</p>
+
+                    <!-- Theme Cards Selection Grid -->
+                    <div class="grid grid-cols-2 gap-2.5 pt-1" id="theme-selector-grid">
+                        
+                        <!-- 1. Light Theme -->
+                        <button onclick="setAppTheme('light')" data-theme-id="light" class="theme-card-btn p-3 rounded-2xl border border-slate-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-slate-50">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">🌞</span>
+                                <div>
+                                    <strong class="text-xs font-bold text-slate-800 block">Light</strong>
+                                    <span class="text-[10px] text-slate-500">화이트 + 그린</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-emerald-500 text-lg theme-check hidden">check_circle</span>
+                        </button>
+
+                        <!-- 2. Dark Theme -->
+                        <button onclick="setAppTheme('dark')" data-theme-id="dark" class="theme-card-btn p-3 rounded-2xl border border-slate-700 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-slate-900 text-white">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">🌙</span>
+                                <div>
+                                    <strong class="text-xs font-bold text-slate-100 block">Dark</strong>
+                                    <span class="text-[10px] text-slate-400">다크 + 에메랄드</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-emerald-400 text-lg theme-check hidden">check_circle</span>
+                        </button>
+
+                        <!-- 3. Pastel Theme -->
+                        <button onclick="setAppTheme('pastel')" data-theme-id="pastel" class="theme-card-btn p-3 rounded-2xl border border-pink-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-pink-50">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">🌸</span>
+                                <div>
+                                    <strong class="text-xs font-bold text-pink-950 block">Pastel</strong>
+                                    <span class="text-[10px] text-pink-700">핑크 + 민트</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-pink-500 text-lg theme-check hidden">check_circle</span>
+                        </button>
+
+                        <!-- 4. Nature Theme -->
+                        <button onclick="setAppTheme('nature')" data-theme-id="nature" class="theme-card-btn p-3 rounded-2xl border border-emerald-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-emerald-50">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">🌿</span>
+                                <div>
+                                    <strong class="text-xs font-bold text-emerald-950 block">Nature</strong>
+                                    <span class="text-[10px] text-emerald-700">포레스트 그린</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-emerald-600 text-lg theme-check hidden">check_circle</span>
+                        </button>
+
+                        <!-- 5. Ocean Theme -->
+                        <button onclick="setAppTheme('ocean')" data-theme-id="ocean" class="theme-card-btn p-3 rounded-2xl border border-sky-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-sky-50">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">🌊</span>
+                                <div>
+                                    <strong class="text-xs font-bold text-sky-950 block">Ocean</strong>
+                                    <span class="text-[10px] text-sky-700">블루 + 시안</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-sky-600 text-lg theme-check hidden">check_circle</span>
+                        </button>
+
+                        <!-- 6. Warm Theme -->
+                        <button onclick="setAppTheme('warm')" data-theme-id="warm" class="theme-card-btn p-3 rounded-2xl border border-amber-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-amber-50">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-xl">🍊</span>
+                                <div>
+                                    <strong class="text-xs font-bold text-amber-950 block">Warm</strong>
+                                    <span class="text-[10px] text-amber-700">오렌지 + 옐로우</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined text-amber-600 text-lg theme-check hidden">check_circle</span>
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- Health Score Trend Chart -->
+                <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-sm theme-text-main flex items-center gap-1.5">
+                            <span class="material-symbols-outlined theme-text-primary text-lg">show_chart</span>
+                            최근 건강점수 추이
+                        </h4>
+                        <span class="text-[10px] theme-text-muted font-bold">주간 리포트</span>
+                    </div>
+                    <div class="w-full h-44">
+                        <canvas id="trendLineChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Daily Calorie Consumption Bar Chart -->
+                <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-sm theme-text-main flex items-center gap-1.5">
+                            <span class="material-symbols-outlined theme-text-primary text-lg">bar_chart</span>
+                            요일별 칼로리 섭취량
+                        </h4>
+                        <span class="text-[10px] theme-text-muted font-bold">단위: kcal</span>
+                    </div>
+                    <div class="w-full h-44">
+                        <canvas id="calorieBarChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Floating Bottom Dock Navigation Bar -->
+        <nav class="absolute bottom-0 left-0 right-0 border-t theme-border px-3 py-2 z-40 flex justify-around items-center backdrop-blur-xl transition-all" style="background-color: var(--bottom-nav-bg);">
+            <button onclick="switchTab('home')" id="nav-btn-home" class="nav-btn active flex flex-col items-center justify-center w-14 py-1.5 theme-text-primary transition-all active:scale-90">
+                <span class="material-symbols-outlined text-2xl">home</span>
+                <span class="text-[10px] font-bold mt-0.5">홈</span>
+            </button>
+            <button onclick="switchTab('analysis')" id="nav-btn-analysis" class="nav-btn flex flex-col items-center justify-center w-14 py-1.5 theme-text-muted hover:theme-text-primary transition-all active:scale-90">
+                <span class="material-symbols-outlined text-2xl">analytics</span>
+                <span class="text-[10px] font-bold mt-0.5">영양 분석</span>
+            </button>
+            <button onclick="switchTab('history')" id="nav-btn-history" class="nav-btn flex flex-col items-center justify-center w-14 py-1.5 theme-text-muted hover:theme-text-primary transition-all active:scale-90">
+                <span class="material-symbols-outlined text-2xl">receipt_long</span>
+                <span class="text-[10px] font-bold mt-0.5">식사 기록</span>
+            </button>
+            <button onclick="switchTab('board')" id="nav-btn-board" class="nav-btn flex flex-col items-center justify-center w-14 py-1.5 theme-text-muted hover:theme-text-primary transition-all active:scale-90">
+                <span class="material-symbols-outlined text-2xl">forum</span>
+                <span class="text-[10px] font-bold mt-0.5">게시판</span>
+            </button>
+            <button onclick="switchTab('mypage')" id="nav-btn-mypage" class="nav-btn flex flex-col items-center justify-center w-14 py-1.5 theme-text-muted hover:theme-text-primary transition-all active:scale-90">
+                <span class="material-symbols-outlined text-2xl">person</span>
+                <span class="text-[10px] font-bold mt-0.5">마이페이지</span>
+            </button>
+        </nav>
+
+        <!-- Toast Floating Message Box -->
+        <div id="toast" class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-slate-900/90 text-white text-xs px-4 py-2.5 rounded-2xl backdrop-blur-md shadow-2xl z-50 transition-all opacity-0 pointer-events-none flex items-center space-x-2 border border-white/10">
+            <span id="toast-icon" class="material-symbols-outlined text-emerald-400 text-base">info</span>
+            <span id="toast-msg" class="font-medium">메시지 내용</span>
+        </div>
+
+        <!-- Meal Detail Modal Dialog -->
+        <div id="detail-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+            <div class="theme-bg-card w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto no-scrollbar border theme-border shadow-2xl">
+                <div class="flex items-center justify-between pb-3 border-b theme-border">
+                    <h3 class="font-extrabold text-base theme-text-main flex items-center gap-2">
+                        <span class="material-symbols-outlined theme-text-primary text-xl">fact_check</span>
+                        식사 상세 기록
+                    </h3>
+                    <button id="close-modal-btn" class="w-8 h-8 rounded-full theme-bg-subtle theme-text-muted hover:theme-text-main flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined text-base">close</span>
+                    </button>
+                </div>
+                <div id="modal-content" class="space-y-3">
+                    <!-- Dynamic modal content -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Profile Edit Modal Dialog -->
+        <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+            <div class="theme-bg-card w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 space-y-4 border theme-border shadow-2xl">
+                <div class="flex items-center justify-between pb-3 border-b theme-border">
+                    <h3 class="font-extrabold text-base theme-text-main flex items-center gap-2">
+                        <span class="material-symbols-outlined theme-text-primary text-xl">manage_accounts</span>
+                        프로필 정보 수정
+                    </h3>
+                    <button id="close-profile-modal-btn" class="w-8 h-8 rounded-full theme-bg-subtle theme-text-muted hover:theme-text-main flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined text-base">close</span>
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    <!-- Icon Selection -->
+                    <div>
+                        <label class="block text-xs font-bold theme-text-sub mb-1.5">프로필 아이콘 선택</label>
+                        <div id="profile-icon-selector" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                            <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="🧑‍🎓">🧑‍🎓</button>
+                            <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="👨‍🎓">👨‍🎓</button>
+                            <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="👩‍🎓">👩‍🎓</button>
+                            <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="👦">👦</button>
+                            <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="👧">👧</button>
+                            <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="🍱">🍱</button>
+                            <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="🥗">🥗</button>
+                            <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="🍎">🍎</button>
+                        </div>
+                    </div>
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-xs font-bold theme-text-sub mb-1">이름 / 닉네임</label>
+                        <input type="text" id="edit-profile-name" placeholder="이름을 입력하세요" class="w-full px-3.5 py-2.5 text-xs theme-bg-subtle border theme-border rounded-xl focus:outline-none theme-text-main font-semibold">
+                    </div>
+                    <!-- School & Grade -->
+                    <div>
+                        <label class="block text-xs font-bold theme-text-sub mb-1">학교 및 학년 정보</label>
+                        <input type="text" id="edit-profile-school" placeholder="예: 서울고등학교 2학년" class="w-full px-3.5 py-2.5 text-xs theme-bg-subtle border theme-border rounded-xl focus:outline-none theme-text-main font-semibold">
+                    </div>
+                    <!-- Badge / Title -->
+                    <div>
+                        <label class="block text-xs font-bold theme-text-sub mb-1">나의 칭호 / 뱃지</label>
+                        <input type="text" id="edit-profile-badge" placeholder="예: 급식 영양 가디언 3급" class="w-full px-3.5 py-2.5 text-xs theme-bg-subtle border theme-border rounded-xl focus:outline-none theme-text-main font-semibold">
+                    </div>
+
+                    <button id="btn-save-profile" class="w-full py-3.5 rounded-2xl theme-btn-primary font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 ripple active:scale-95 mt-2">
+                        <span class="material-symbols-outlined text-base">check</span>
+                        프로필 저장하기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9IrDPRCanHlflOBV6xB3L377hjjeiyFk",
+            authDomain: "white-board-c3c2d.firebaseapp.com",
+            projectId: "white-board-c3c2d",
+            storageBucket: "white-board-c3c2d.firebasestorage.app",
+            messagingSenderId: "1087196806295",
+            appId: "1:1087196806295:web:87ae74929ae3efe8dfbdd2"
+        };
+
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch (e) {
+            console.warn("Firebase fallback mode activated:", e);
+        }
+
+        // Global State
+        let currentTheme = 'light';
+        let selectedImageData = null;
+        let currentAnalysisResult = null;
+        let activeTab = 'home';
+        let currentRating = 5;
+        let macroChartInstance = null;
+        let trendChartInstance = null;
+        let calorieChartInstance = null;
+
+        // User Profile State
+        let userProfile = {
+            icon: '🧑‍🎓',
+            name: '건강한 학생 회원',
+            school: '서울고등학교 2학년',
+            badge: '급식 영양 가디언 3급'
+        };
+        let selectedEditIcon = '🧑‍🎓';
+
+        const THEME_NAMES = {
+            light: '🌞 Light',
+            dark: '🌙 Dark',
+            pastel: '🌸 Pastel',
+            nature: '🌿 Nature',
+            ocean: '🌊 Ocean',
+            warm: '🍊 Warm'
+        };
+
+        // 테마 순환 순서 배열
+        const THEME_ORDER = ['light', 'dark', 'pastel', 'nature', 'ocean', 'warm'];
+
+        // GLOBAL EXPOSURES - Attach immediately to window so inline HTML onclicks work right away
+        window.switchTab = function(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('theme-text-primary', 'active');
+                btn.classList.add('theme-text-muted');
+            });
+
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            const targetNav = document.getElementById(`nav-btn-${tabId}`);
+
+            if (targetTab && targetNav) {
+                targetTab.classList.add('active');
+                targetNav.classList.remove('theme-text-muted');
+                targetNav.classList.add('theme-text-primary', 'active');
+            }
+
+            const scrollArea = document.getElementById('main-scroll-area');
+            if (scrollArea) scrollArea.scrollTop = 0;
+
+            if (tabId === 'mypage') {
+                setTimeout(initMyPageCharts, 100);
+            } else if (tabId === 'history') {
+                loadHistoryList();
+            }
+        };
+
+        window.setAppTheme = function(themeId) {
+            if (!THEME_NAMES[themeId]) return;
+            currentTheme = themeId;
+            localStorage.setItem('theme', themeId);
+            applyTheme(themeId, true);
+            showToast(`${THEME_NAMES[themeId]} 테마가 적용되었습니다!`, 'palette');
+        };
+
+        window.openDetailModal = function(id) {
+            const history = JSON.parse(localStorage.getItem('meal_history') || '[]');
+            const item = history.find(i => i.id === id);
+            if (!item) return;
+
+            const modalContent = document.getElementById('modal-content');
+            const data = item.fullData;
+
+            modalContent.innerHTML = `
+                <img src="${item.image}" class="w-full h-44 object-cover rounded-2xl mb-3 shadow-sm border theme-border" alt="급식 사진">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs theme-text-muted font-bold">${item.date} ${item.time}</span>
+                    <span class="text-xs font-extrabold px-3 py-1 theme-bg-primary-light theme-text-primary rounded-full border border-emerald-500/20">건강점수: ${item.score}점</span>
+                </div>
+                <h4 class="font-bold text-sm theme-text-main mb-1">식단 메뉴</h4>
+                <ul class="text-xs divide-y theme-border mb-3 font-medium">
+                    ${data.foods ? data.foods.map(f => `<li class="py-1.5 flex justify-between"><span>${f.name}</span><span class="theme-text-muted">${f.calories}</span></li>`).join('') : ''}
+                </ul>
+                <div class="p-3.5 theme-bg-subtle rounded-2xl text-xs theme-text-sub border theme-border leading-relaxed font-medium">
+                    <strong class="theme-text-main font-bold block mb-1">AI 영양사 피드백</strong>
+                    ${data.comment}
+                </div>
+            `;
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        };
+
+        window.deleteHistoryItem = function(id) {
+            let history = JSON.parse(localStorage.getItem('meal_history') || '[]');
+            history = history.filter(item => item.id !== id);
+            localStorage.setItem('meal_history', JSON.stringify(history));
+            showToast('식사 기록이 삭제되었습니다.', 'delete');
+            loadHistoryList();
+        };
+
+        // App Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initThemeSystem();
+            initDateDisplay();
+            window.switchTab('home');
+            initUploadHandlers();
+            initStarRating();
+            initBoardFeed();
+            initMyPageCharts();
+            loadHistoryList();
+            loadUserProfile();
+            initProfileHandlers();
+            registerServiceWorker();
+        });
+
+        function loadUserProfile() {
+            const saved = localStorage.getItem('user_profile');
+            if (saved) {
+                try {
+                    userProfile = { ...userProfile, ...JSON.parse(saved) };
+                } catch (e) {
+                    console.error("Profile load error:", e);
+                }
+            }
+            renderUserProfileUI();
+        }
+
+        function renderUserProfileUI() {
+            const iconEl = document.getElementById('user-profile-icon');
+            const nameEl = document.getElementById('user-profile-name');
+            const schoolEl = document.getElementById('user-profile-school');
+            const badgeEl = document.getElementById('user-profile-badge');
+
+            if (iconEl) iconEl.textContent = userProfile.icon;
+            if (nameEl) nameEl.textContent = userProfile.name;
+            if (schoolEl) schoolEl.textContent = userProfile.school;
+            if (badgeEl) badgeEl.textContent = userProfile.badge;
+        }
+
+        function initProfileHandlers() {
+            const editBtn = document.getElementById('btn-edit-profile');
+            const modal = document.getElementById('profile-modal');
+            const closeBtn = document.getElementById('close-profile-modal-btn');
+            const saveBtn = document.getElementById('btn-save-profile');
+
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    selectedEditIcon = userProfile.icon;
+                    document.getElementById('edit-profile-name').value = userProfile.name;
+                    document.getElementById('edit-profile-school').value = userProfile.school;
+                    document.getElementById('edit-profile-badge').value = userProfile.badge;
+                    updateProfileIconSelectorUI();
+                    modal.classList.remove('hidden');
+                });
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    modal.classList.add('hidden');
+                });
+            }
+
+            document.querySelectorAll('.profile-icon-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedEditIcon = btn.getAttribute('data-emoji');
+                    updateProfileIconSelectorUI();
+                });
+            });
+
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    const name = document.getElementById('edit-profile-name').value.trim() || '건강한 학생 회원';
+                    const school = document.getElementById('edit-profile-school').value.trim() || '서울고등학교 2학년';
+                    const badge = document.getElementById('edit-profile-badge').value.trim() || '급식 영양 가디언 3급';
+
+                    userProfile = {
+                        icon: selectedEditIcon,
+                        name: name,
+                        school: school,
+                        badge: badge
+                    };
+
+                    localStorage.setItem('user_profile', JSON.stringify(userProfile));
+                    renderUserProfileUI();
+                    modal.classList.add('hidden');
+                    showToast('프로필 정보가 수정되었습니다!', 'person');
+                });
+            }
+        }
+
+        function updateProfileIconSelectorUI() {
+            document.querySelectorAll('.profile-icon-option').forEach(btn => {
+                const emoji = btn.getAttribute('data-emoji');
+                if (emoji === selectedEditIcon) {
+                    btn.classList.add('ring-2', 'ring-emerald-500', 'theme-bg-primary-light');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-emerald-500', 'theme-bg-primary-light');
+                }
+            });
+        }
+
+        function initThemeSystem() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme && THEME_NAMES[savedTheme]) {
+                currentTheme = savedTheme;
+            } else {
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                currentTheme = prefersDark ? 'dark' : 'light';
+            }
+
+            applyTheme(currentTheme, false);
+
+            // 상단 헤더 팔레트 아이콘 클릭 시 6개 테마를 순서대로 순환 전환
+            document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+                const currentIndex = THEME_ORDER.indexOf(currentTheme);
+                const nextIndex = (currentIndex + 1) % THEME_ORDER.length;
+                const nextTheme = THEME_ORDER[nextIndex !== -1 ? nextIndex : 0];
+                window.setAppTheme(nextTheme);
+            });
+        }
+
+        function applyTheme(themeId, reRenderCharts = true) {
+            document.documentElement.setAttribute('data-theme', themeId);
+            
+            document.querySelectorAll('.theme-card-btn').forEach(btn => {
+                const id = btn.getAttribute('data-theme-id');
+                const check = btn.querySelector('.theme-check');
+                if (id === themeId) {
+                    btn.classList.add('ring-2', 'ring-emerald-500', 'shadow-md');
+                    if (check) check.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-emerald-500', 'shadow-md');
+                    if (check) check.classList.add('hidden');
+                }
+            });
+
+            if (reRenderCharts) {
+                setTimeout(() => {
+                    if (currentAnalysisResult) renderMacroChart(currentAnalysisResult);
+                    initMyPageCharts();
+                }, 50);
+            }
+        }
+
+        function getThemeVar(varName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+        }
+
+        function initDateDisplay() {
+            const dateBadge = document.getElementById('current-date-badge');
+            if (!dateBadge) return;
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+            dateBadge.textContent = now.toLocaleDateString('ko-KR', options);
+        }
+
+        function showToast(message, iconName = 'info') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+
+            if (!toast || !msgEl || !iconEl) return;
+
+            msgEl.textContent = message;
+            iconEl.textContent = iconName;
+
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2800);
+        }
+
+        function initUploadHandlers() {
+            const dropzone = document.getElementById('image-dropzone');
+            const fileInput = document.getElementById('meal-file-input');
+            const btnCamera = document.getElementById('btn-camera');
+            const btnGallery = document.getElementById('btn-gallery');
+            const btnAnalyze = document.getElementById('btn-analyze');
+            const removeImgBtn = document.getElementById('remove-image-btn');
+
+            if (dropzone) dropzone.addEventListener('click', () => fileInput.click());
+            if (btnCamera) btnCamera.addEventListener('click', () => {
+                fileInput.setAttribute('capture', 'environment');
+                fileInput.click();
+            });
+            if (btnGallery) btnGallery.addEventListener('click', () => {
+                fileInput.removeAttribute('capture');
+                fileInput.click();
+            });
+
+            if (fileInput) fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    processImageFile(e.target.files[0]);
+                }
+            });
+
+            if (removeImgBtn) removeImgBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                clearImageSelection();
+            });
+
+            if (btnAnalyze) btnAnalyze.addEventListener('click', handleStartAnalysis);
+        }
+
+        function processImageFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    selectedImageData = canvas.toDataURL('image/jpeg', 0.82);
+                    
+                    document.getElementById('upload-preview-img').src = selectedImageData;
+                    document.getElementById('upload-preview-container').classList.remove('hidden');
+                    document.getElementById('btn-analyze').disabled = false;
+                    showToast('급식 사진이 업로드되었습니다.', 'check_circle');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImageSelection() {
+            selectedImageData = null;
+            document.getElementById('upload-preview-img').src = '';
+            document.getElementById('upload-preview-container').classList.add('hidden');
+            document.getElementById('meal-file-input').value = '';
+            document.getElementById('btn-analyze').disabled = true;
+        }
+
+        async function handleStartAnalysis() {
+            if (!selectedImageData) {
+                showToast('급식 사진을 먼저 촬영해 주세요.', 'warning');
+                return;
+            }
+
+            window.switchTab('analysis');
+            document.getElementById('analysis-empty').classList.add('hidden');
+            document.getElementById('analysis-result-content').classList.add('hidden');
+            document.getElementById('analysis-skeleton').classList.remove('hidden');
+
+            try {
+                let analysisData = null;
+
+                try {
+                    const response = await fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: selectedImageData })
+                    });
+
+                    if (response.ok) {
+                        const resJson = await response.json();
+                        analysisData = typeof resJson === 'string' ? JSON.parse(resJson) : resJson;
+                    }
+                } catch (err) {
+                    console.log("Vercel Serverless Function fallback active:", err);
+                }
+
+                if (!analysisData) {
+                    await new Promise(resolve => setTimeout(resolve, 1600));
+                    analysisData = generateMockGeminiAnalysis();
+                }
+
+                currentAnalysisResult = analysisData;
+                renderAnalysisResults(analysisData);
+                showToast('영양 분석이 완료되었습니다!', 'task_alt');
+
+            } catch (error) {
+                console.error("Gemini Analysis Error:", error);
+                showToast('분석 중 오류가 발생했습니다.', 'error');
+                document.getElementById('analysis-skeleton').classList.add('hidden');
+                document.getElementById('analysis-empty').classList.remove('hidden');
+            }
+        }
+
+        function generateMockGeminiAnalysis() {
+            const mockMenus = [
+                {
+                    foods: [
+                        { name: "흑미잡곡밥", calories: "280 kcal" },
+                        { name: "얼큰 쇠고기 무국", calories: "110 kcal" },
+                        { name: "수제 돈까스 & 데미소스", calories: "320 kcal" },
+                        { name: "마카로니 콘샐러드", calories: "120 kcal" },
+                        { name: "배추김치", calories: "25 kcal" },
+                        { name: "샤인머스캣 과일", calories: "45 kcal" }
+                    ],
+                    totalCalories: "900",
+                    carbohydrate: "115g",
+                    protein: "38g",
+                    fat: "24g",
+                    healthScore: "88",
+                    comment: "돈까스의 풍부한 단백질과 흑미밥의 섬유질이 조화를 이루는 맛있는 식단입니다! 나트륨 조절을 위해 국물은 살짝 적게 드시는 것을 추천합니다."
+                },
+                {
+                    foods: [
+                        { name: "현미밥", calories: "260 kcal" },
+                        { name: "맑은 콩나물국", calories: "45 kcal" },
+                        { name: "춘천 닭갈비 볶음", calories: "280 kcal" },
+                        { name: "야채 계란말이", calories: "95 kcal" },
+                        { name: "시금치 나물무침", calories: "35 kcal" },
+                        { name: "아삭 깍두기", calories: "20 kcal" }
+                    ],
+                    totalCalories: "735",
+                    carbohydrate: "88g",
+                    protein: "34g",
+                    fat: "16g",
+                    healthScore: "95",
+                    comment: "탄수화물, 단백질, 비타민 채소류가 최고 수준의 비율을 보여줍니다. 식후 10분 산책과 함께 완벽한 하루를 만들어보세요!"
+                }
+            ];
+
+            return mockMenus[Math.floor(Math.random() * mockMenus.length)];
+        }
+
+        function renderAnalysisResults(data) {
+            document.getElementById('analysis-skeleton').classList.add('hidden');
+            document.getElementById('analysis-result-content').classList.remove('hidden');
+
+            const now = new Date();
+            document.getElementById('res-date').textContent = now.toLocaleDateString('ko-KR');
+
+            document.getElementById('res-total-calories').textContent = data.totalCalories;
+            document.getElementById('res-health-score').textContent = data.healthScore;
+            
+            const calPercent = Math.round((parseInt(data.totalCalories) / 2000) * 100);
+            document.getElementById('res-cal-percent').textContent = `${calPercent}%`;
+
+            const gaugePath = document.getElementById('score-gauge-path');
+            const scoreNum = parseInt(data.healthScore) || 80;
+            gaugePath.setAttribute('stroke-dasharray', `${scoreNum}, 100`);
+
+            const foodListContainer = document.getElementById('res-food-list');
+            foodListContainer.innerHTML = '';
+            if (data.foods && Array.isArray(data.foods)) {
+                data.foods.forEach(food => {
+                    const li = document.createElement('li');
+                    li.className = 'py-2.5 flex justify-between items-center';
+                    li.innerHTML = `
+                        <span class="font-semibold theme-text-main flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full theme-btn-primary"></span>
+                            ${food.name}
+                        </span>
+                        <span class="theme-text-sub font-medium">${food.calories}</span>
+                    `;
+                    foodListContainer.appendChild(li);
+                });
+            }
+
+            document.getElementById('res-carbo').textContent = data.carbohydrate;
+            document.getElementById('res-protein').textContent = data.protein;
+            document.getElementById('res-fat').textContent = data.fat;
+
+            document.getElementById('res-ai-comment').textContent = data.comment;
+
+            renderMacroChart(data);
+
+            document.getElementById('btn-save-record').onclick = () => saveRecordToLocalStorage(data);
+        }
+
+        function renderMacroChart(data) {
+            const ctx = document.getElementById('macroDonutChart').getContext('2d');
+            
+            const carboVal = parseInt(data.carbohydrate) || 90;
+            const proteinVal = parseInt(data.protein) || 30;
+            const fatVal = parseInt(data.fat) || 20;
+
+            const c1 = getThemeVar('--chart-c1') || '#3b82f6';
+            const c2 = getThemeVar('--chart-c2') || '#10b981';
+            const c3 = getThemeVar('--chart-c3') || '#f59e0b';
+            const textColor = getThemeVar('--chart-text') || '#64748b';
+
+            if (macroChartInstance) macroChartInstance.destroy();
+
+            macroChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['탄수화물', '단백질', '지방'],
+                    datasets: [{
+                        data: [carboVal, proteinVal, fatVal],
+                        backgroundColor: [c1, c2, c3],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 11, family: 'Pretendard' },
+                                color: textColor
+                            }
+                        }
+                    },
+                    cutout: '72%'
+                }
+            });
+        }
+
+        function saveRecordToLocalStorage(data) {
+            let history = JSON.parse(localStorage.getItem('meal_history') || '[]');
+            
+            const recordItem = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('ko-KR'),
+                time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                image: selectedImageData,
+                mainFood: data.foods && data.foods[0] ? data.foods[0].name : '급식 세트',
+                foodCount: data.foods ? data.foods.length : 0,
+                calories: data.totalCalories,
+                score: data.healthScore,
+                fullData: data
+            };
+
+            history.unshift(recordItem);
+            localStorage.setItem('meal_history', JSON.stringify(history));
+            
+            showToast('식사 기록에 정상적으로 저장되었습니다!', 'bookmark_added');
+            window.switchTab('history');
+        }
+
+        function loadHistoryList() {
+            const historyListContainer = document.getElementById('history-list');
+            const emptyContainer = document.getElementById('history-empty');
+            const history = JSON.parse(localStorage.getItem('meal_history') || '[]');
+
+            const clearBtn = document.getElementById('btn-clear-history');
+            if (clearBtn) clearBtn.onclick = clearAllHistory;
+
+            if (history.length === 0) {
+                if (historyListContainer) historyListContainer.innerHTML = '';
+                if (emptyContainer) emptyContainer.classList.remove('hidden');
+                return;
+            }
+
+            if (emptyContainer) emptyContainer.classList.add('hidden');
+            if (!historyListContainer) return;
+            historyListContainer.innerHTML = '';
+
+            history.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'theme-bg-card rounded-3xl p-4 border theme-border shadow-stitch flex items-center justify-between space-x-3 transition-all hover:scale-[1.01]';
+                
+                const thumbnailSrc = item.image || 'https://placehold.co/100x100/10b981/ffffff?text=식단';
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <img src="${thumbnailSrc}" class="w-16 h-16 rounded-2xl object-cover flex-shrink-0 border theme-border" alt="급식 썸네일">
+                        <div class="truncate">
+                            <span class="text-[10px] theme-text-muted font-bold block">${item.date} ${item.time}</span>
+                            <h4 class="font-bold text-sm theme-text-main truncate mt-0.5">${item.mainFood} 외 ${item.foodCount - 1}종</h4>
+                            <p class="text-xs theme-text-primary font-bold mt-0.5">${item.calories} kcal</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end justify-between space-y-2 flex-shrink-0">
+                        <span class="px-2.5 py-1 theme-bg-primary-light theme-text-primary text-xs font-black rounded-xl border border-emerald-500/20">
+                            ${item.score}점
+                        </span>
+                        <div class="flex items-center space-x-1">
+                            <button onclick="openDetailModal(${item.id})" class="p-1.5 rounded-xl theme-bg-subtle theme-text-sub text-xs hover:opacity-80 active:scale-90">
+                                <span class="material-symbols-outlined text-base">visibility</span>
+                            </button>
+                            <button onclick="deleteHistoryItem(${item.id})" class="p-1.5 rounded-xl bg-rose-50 text-rose-500 text-xs hover:bg-rose-100 active:scale-90">
+                                <span class="material-symbols-outlined text-base">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                historyListContainer.appendChild(card);
+            });
+        }
+
+        function clearAllHistory() {
+            if (confirm('저장된 모든 식사 기록을 삭제하시겠습니까?')) {
+                localStorage.removeItem('meal_history');
+                showToast('모든 기록이 삭제되었습니다.', 'delete');
+                loadHistoryList();
+            }
+        }
+
+        const closeBtn = document.getElementById('close-modal-btn');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                document.getElementById('detail-modal').classList.add('hidden');
+            };
+        }
+
+        function initStarRating() {
+            const stars = document.querySelectorAll('#star-rating-selector .star-btn');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    currentRating = parseInt(star.getAttribute('data-value'));
+                    updateStarUI();
+                });
+            });
+        }
+
+        function updateStarUI() {
+            const stars = document.querySelectorAll('#star-rating-selector .star-btn');
+            stars.forEach(star => {
+                const val = parseInt(star.getAttribute('data-value'));
+                if (val <= currentRating) {
+                    star.classList.add('text-amber-400');
+                    star.classList.remove('text-slate-300');
+                } else {
+                    star.classList.remove('text-amber-400');
+                    star.classList.add('text-slate-300');
+                }
+            });
+        }
+
+        function initBoardFeed() {
+            const btnSubmit = document.getElementById('btn-submit-post');
+            if (btnSubmit) btnSubmit.addEventListener('click', handleCreatePost);
+
+            if (db) {
+                db.collection('posts').orderBy('createdAt', 'desc').limit(20)
+                  .onSnapshot((snapshot) => {
+                      const posts = [];
+                      snapshot.forEach(doc => {
+                          posts.push({ id: doc.id, ...doc.data() });
+                      });
+                      renderBoardFeed(posts);
+                  }, (err) => {
+                      console.log("Firestore stream fallback active:", err);
+                      loadMockPosts();
+                  });
+            } else {
+                loadMockPosts();
+            }
+        }
+
+        async function handleCreatePost() {
+            const nicknameInput = document.getElementById('board-nickname');
+            const contentInput = document.getElementById('board-content');
+
+            const nickname = nicknameInput.value.trim() || '익명 학생';
+            const content = contentInput.value.trim();
+
+            if (!content) {
+                showToast('급식 후기 내용을 입력해 주세요.', 'warning');
+                return;
+            }
+
+            const postData = {
+                nickname: nickname,
+                content: content,
+                rating: currentRating,
+                createdAt: db ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
+            };
+
+            try {
+                if (db) {
+                    await db.collection('posts').add(postData);
+                } else {
+                    saveMockPost(postData);
+                }
+
+                contentInput.value = '';
+                showToast('소통 글이 등록되었습니다!', 'check_circle');
+            } catch (err) {
+                console.error("Firestore post error:", err);
+                saveMockPost(postData);
+                contentInput.value = '';
+                showToast('글이 등록되었습니다.', 'check_circle');
+            }
+        }
+
+        function saveMockPost(post) {
+            let posts = JSON.parse(localStorage.getItem('mock_board_posts') || '[]');
+            posts.unshift(post);
+            localStorage.setItem('mock_board_posts', JSON.stringify(posts));
+            renderBoardFeed(posts);
+        }
+
+        function loadMockPosts() {
+            let posts = JSON.parse(localStorage.getItem('mock_board_posts') || '[]');
+            if (posts.length === 0) {
+                posts = [
+                    { nickname: "급식매니아", content: "오늘 나온 돈까스 소스가 정말 맛있고 바삭해요! 💯", rating: 5, createdAt: new Date().toISOString() },
+                    { nickname: "건강왕", content: "시금치 나물이랑 무국 시원해서 완식했습니다. 영양사 선생님 최고!", rating: 4, createdAt: new Date().toISOString() }
+                ];
+                localStorage.setItem('mock_board_posts', JSON.stringify(posts));
+            }
+            renderBoardFeed(posts);
+        }
+
+        function renderBoardFeed(posts) {
+            const feedContainer = document.getElementById('board-feed');
+            if (!feedContainer) return;
+            feedContainer.innerHTML = '';
+
+            posts.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'theme-bg-card rounded-2xl p-4 border theme-border shadow-stitch space-y-2';
+
+                let starsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    starsHtml += `<span class="material-symbols-outlined text-sm ${i <= (post.rating || 5) ? 'text-amber-400' : 'text-slate-200'}">star</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-7 h-7 rounded-full theme-bg-primary-light theme-text-primary flex items-center justify-center font-bold text-xs">
+                                ${post.nickname.charAt(0)}
+                            </div>
+                            <span class="font-bold text-xs theme-text-main">${post.nickname}</span>
+                        </div>
+                        <div class="flex space-x-0.5">${starsHtml}</div>
+                    </div>
+                    <p class="text-xs theme-text-sub leading-relaxed font-medium">${post.content}</p>
+                `;
+                feedContainer.appendChild(card);
+            });
+        }
+
+        function initMyPageCharts() {
+            const textColor = getThemeVar('--chart-text') || '#64748b';
+            const gridColor = getThemeVar('--chart-grid') || 'rgba(226, 232, 240, 0.6)';
+            const primaryColor = getThemeVar('--primary') || '#10b981';
+            const secondaryColor = getThemeVar('--chart-c2') || '#10b981';
+
+            const lineEl = document.getElementById('trendLineChart');
+            if (lineEl) {
+                const ctxLine = lineEl.getContext('2d');
+                if (trendChartInstance) trendChartInstance.destroy();
+
+                trendChartInstance = new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: ['월', '화', '수', '목', '금'],
+                        datasets: [{
+                            label: '건강점수',
+                            data: [82, 88, 79, 95, 88],
+                            borderColor: primaryColor,
+                            backgroundColor: `${primaryColor}22`,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: primaryColor
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+                            y: { min: 60, max: 100, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+                        }
+                    }
+                });
+            }
+
+            const barEl = document.getElementById('calorieBarChart');
+            if (barEl) {
+                const ctxBar = barEl.getContext('2d');
+                if (calorieChartInstance) calorieChartInstance.destroy();
+
+                calorieChartInstance = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: ['월', '화', '수', '목', '금'],
+                        datasets: [{
+                            label: '칼로리(kcal)',
+                            data: [720, 810, 690, 750, 735],
+                            backgroundColor: secondaryColor,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+                            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
+                    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => {
+                    console.log("Service Worker registration notice:", err);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

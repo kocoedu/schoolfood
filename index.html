@@ -288,7 +288,6 @@
 
     <div id="app-viewport" class="w-full max-w-md theme-bg-main h-full sm:h-[92vh] sm:rounded-[40px] flex flex-col shadow-2xl relative overflow-hidden border theme-border transition-all duration-300">
 
-        <!-- Top Header Bar -->
         <header class="px-5 py-4 sticky top-0 z-30 border-b theme-border flex justify-between items-center backdrop-blur-xl transition-all" style="background-color: var(--header-bg);">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-2xl theme-btn-primary flex items-center justify-center font-bold text-xl shadow-stitch transition-transform active:scale-95">
@@ -303,7 +302,6 @@
                 </div>
             </div>
 
-            <!-- Header Actions -->
             <div class="flex items-center space-x-2">
                 <button id="dark-mode-toggle" title="빠른 테마 전환" class="w-10 h-10 rounded-2xl theme-bg-subtle theme-text-sub flex items-center justify-center hover:opacity-80 transition-all active:scale-90 border theme-border">
                     <span class="material-symbols-outlined text-[20px]" id="theme-toggle-icon">palette</span>
@@ -311,12 +309,10 @@
             </div>
         </header>
 
-        <!-- Main Content Area -->
         <main class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-28 relative" id="main-scroll-area">
 
             <!-- TAB 1: HOME (홈) -->
             <section id="tab-home" class="tab-content active space-y-4">
-                <!-- Banner Greeting Card -->
                 <div class="theme-btn-primary rounded-3xl p-6 shadow-float relative overflow-hidden transition-all duration-300">
                     <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-white/15 rounded-full blur-2xl pointer-events-none"></div>
                     <div class="flex justify-between items-start mb-3">
@@ -329,7 +325,6 @@
                     <p class="text-xs opacity-90 mt-2 font-medium leading-relaxed">사진 한 장으로 칼로리 및 탄·단·지 영양 균형을 3초 만에 분석해보세요.</p>
                 </div>
 
-                <!-- Camera Upload Dropzone Card -->
                 <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-4 transition-all">
                     <div class="flex items-center justify-between">
                         <h3 class="font-bold theme-text-main flex items-center gap-2 text-sm">
@@ -339,10 +334,7 @@
                         <span class="text-[10px] px-2 py-0.5 rounded-md theme-bg-subtle theme-text-muted font-semibold">자동 리사이징 지원</span>
                     </div>
 
-                    <!-- Dropzone Area -->
                     <div id="image-dropzone" class="border-2 border-dashed theme-border rounded-2xl p-6 transition-all text-center flex flex-col items-center justify-center min-h-[210px] cursor-pointer theme-bg-subtle relative overflow-hidden group hover:border-emerald-500/50">
-                        
-                        <!-- Upload Placeholder UI -->
                         <div id="upload-placeholder" class="flex flex-col items-center space-y-2.5">
                             <div class="w-16 h-16 rounded-2xl theme-bg-primary-light theme-text-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
                                 <span class="material-symbols-outlined text-3xl">add_a_photo</span>
@@ -353,7 +345,6 @@
                             </div>
                         </div>
 
-                        <!-- Image Preview Container -->
                         <div id="upload-preview-container" class="hidden absolute inset-0 w-full h-full bg-slate-950">
                             <img id="upload-preview-img" class="w-full h-full object-cover" src="" alt="식단 미리보기">
                             <button id="remove-image-btn" title="사진 지우기" class="absolute top-3 right-3 bg-black/75 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg active:scale-90">
@@ -362,10 +353,8 @@
                         </div>
                     </div>
 
-                    <!-- Hidden Input -->
                     <input type="file" id="meal-file-input" accept="image/*" capture="environment" class="hidden">
 
-                    <!-- Button Controls -->
                     <div class="grid grid-cols-2 gap-2.5">
                         <button id="btn-camera" class="py-3 px-4 rounded-2xl theme-bg-subtle theme-text-main hover:opacity-80 text-xs font-bold flex items-center justify-center gap-2 border theme-border transition-all active:scale-95">
                             <span class="material-symbols-outlined text-lg theme-text-primary">photo_camera</span>
@@ -377,14 +366,12 @@
                         </button>
                     </div>
 
-                    <!-- Action Trigger Button -->
                     <button id="btn-analyze" disabled class="w-full py-4 rounded-2xl theme-btn-primary disabled:opacity-40 text-white font-extrabold text-base shadow-float transition-all flex items-center justify-center gap-2 ripple disabled:shadow-none active:scale-[0.98]">
                         <span class="material-symbols-outlined text-xl">auto_awesome</span>
                         AI 영양 분석 시작하기
                     </button>
                 </div>
 
-                <!-- Tip Card -->
                 <div class="theme-bg-subtle border theme-border rounded-2xl p-4 flex items-start space-x-3">
                     <span class="material-symbols-outlined theme-text-primary text-xl mt-0.5">tips_and_updates</span>
                     <div class="text-xs theme-text-sub leading-relaxed">
@@ -396,8 +383,6 @@
 
             <!-- TAB 2: NUTRITION ANALYSIS (영양 분석) -->
             <section id="tab-analysis" class="tab-content space-y-4">
-                
-                <!-- Loading Skeleton -->
                 <div id="analysis-skeleton" class="hidden space-y-4">
                     <div class="theme-bg-card rounded-3xl p-6 border theme-border space-y-4 shadow-stitch">
                         <div class="h-6 w-1/3 skeleton rounded-lg"></div>
@@ -407,7 +392,6 @@
                     </div>
                 </div>
 
-                <!-- Empty State -->
                 <div id="analysis-empty" class="theme-bg-card rounded-3xl p-8 border theme-border text-center space-y-3.5 shadow-stitch">
                     <div class="w-16 h-16 rounded-2xl theme-bg-primary-light theme-text-primary flex items-center justify-center mx-auto shadow-sm">
                         <span class="material-symbols-outlined text-3xl">analytics</span>
@@ -419,10 +403,7 @@
                     </button>
                 </div>
 
-                <!-- Active Result Container -->
                 <div id="analysis-result-content" class="hidden space-y-4">
-                    
-                    <!-- Score & Calories Header Card -->
                     <div class="theme-bg-card rounded-3xl p-6 border theme-border shadow-stitch space-y-4">
                         <div class="flex items-center justify-between border-b theme-border pb-3">
                             <div>
@@ -432,9 +413,7 @@
                             <span class="px-3 py-1 theme-bg-primary-light theme-text-primary text-xs font-extrabold rounded-full border border-emerald-500/20">Gemini Vision</span>
                         </div>
 
-                        <!-- Gauge Ring & Calories -->
                         <div class="flex items-center justify-around py-2">
-                            <!-- Circular Gauge -->
                             <div class="relative w-28 h-28 flex items-center justify-center">
                                 <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                                     <path class="theme-text-sub opacity-15" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
@@ -454,18 +433,15 @@
                         </div>
                     </div>
 
-                    <!-- Food Menu List -->
                     <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch">
                         <h4 class="font-bold text-sm theme-text-main mb-3 flex items-center gap-2">
                             <span class="material-symbols-outlined theme-text-primary text-lg">restaurant_menu</span>
                             감지된 급식 메뉴 목록
                         </h4>
                         <ul id="res-food-list" class="divide-y theme-border text-xs">
-                            <!-- Items injected dynamically -->
                         </ul>
                     </div>
 
-                    <!-- Macronutrient Donut Chart -->
                     <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch">
                         <h4 class="font-bold text-sm theme-text-main mb-1 flex items-center gap-2">
                             <span class="material-symbols-outlined theme-text-primary text-lg">pie_chart</span>
@@ -477,7 +453,6 @@
                             <canvas id="macroDonutChart"></canvas>
                         </div>
 
-                        <!-- Nutrient Summary Badges -->
                         <div class="grid grid-cols-3 gap-2 text-center mt-3 pt-3 border-t theme-border text-xs">
                             <div class="p-2.5 rounded-2xl theme-bg-subtle border theme-border">
                                 <span class="block theme-text-sub font-bold text-[10px] mb-1 flex items-center justify-center gap-1">
@@ -503,7 +478,6 @@
                         </div>
                     </div>
 
-                    <!-- AI Nutritionist Comment Box -->
                     <div class="theme-bg-subtle border theme-border rounded-3xl p-5 shadow-stitch space-y-2">
                         <div class="flex items-center space-x-2">
                             <div class="w-8 h-8 rounded-full theme-btn-primary flex items-center justify-center font-bold text-sm shadow-sm">
@@ -516,7 +490,6 @@
                         </p>
                     </div>
 
-                    <!-- Save CTA -->
                     <button id="btn-save-record" class="w-full py-4 rounded-2xl theme-btn-primary font-extrabold text-sm shadow-float transition-all flex items-center justify-center gap-2 ripple active:scale-95">
                         <span class="material-symbols-outlined text-lg">bookmark</span>
                         식사 기록에 저장하기
@@ -536,12 +509,9 @@
                     </button>
                 </div>
 
-                <!-- History Card List -->
                 <div id="history-list" class="space-y-3">
-                    <!-- Cards generated dynamically -->
                 </div>
 
-                <!-- Empty State -->
                 <div id="history-empty" class="hidden theme-bg-card rounded-3xl p-8 border theme-border text-center space-y-3 shadow-stitch">
                     <div class="w-16 h-16 rounded-2xl theme-bg-subtle theme-text-sub flex items-center justify-center mx-auto">
                         <span class="material-symbols-outlined text-3xl">history</span>
@@ -558,11 +528,9 @@
                     <p class="text-xs theme-text-sub">친구들과 함께 오늘 급식을 공유하고 평점을 남겨보세요.</p>
                 </div>
 
-                <!-- Post Creation Form -->
                 <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-3">
                     <input type="text" id="board-nickname" placeholder="닉네임 (예: 급식탐험가)" class="w-full px-4 py-3 text-xs theme-bg-subtle border theme-border rounded-2xl focus:outline-none theme-text-main font-semibold">
 
-                    <!-- Star Selector -->
                     <div class="flex items-center justify-between theme-bg-subtle p-3.5 rounded-2xl border theme-border">
                         <span class="text-xs font-bold theme-text-sub">오늘 급식 별점:</span>
                         <div id="star-rating-selector" class="flex space-x-1 cursor-pointer text-amber-400">
@@ -582,15 +550,12 @@
                     </button>
                 </div>
 
-                <!-- Posts Feed List -->
                 <div id="board-feed" class="space-y-3">
-                    <!-- Dynamic Posts -->
                 </div>
             </section>
 
             <!-- TAB 5: MY PAGE & APP SETTINGS (마이페이지) -->
             <section id="tab-mypage" class="tab-content space-y-4">
-                <!-- User Profile Banner -->
                 <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <div id="user-profile-icon" class="w-14 h-14 rounded-2xl theme-btn-primary flex items-center justify-center font-extrabold text-2xl shadow-md">
@@ -607,7 +572,6 @@
                     </button>
                 </div>
 
-                <!-- Summary Stats Badge -->
                 <div class="grid grid-cols-3 gap-2">
                     <div class="theme-bg-card p-3.5 rounded-2xl border theme-border text-center shadow-stitch">
                         <span class="text-[10px] theme-text-muted font-bold block">총 분석 횟수</span>
@@ -623,7 +587,6 @@
                     </div>
                 </div>
 
-                <!-- STITCH THEME SELECTOR GRID (6 Color Presets) -->
                 <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-3">
                     <div class="flex items-center justify-between border-b theme-border pb-2.5">
                         <h4 class="font-bold text-sm theme-text-main flex items-center gap-1.5">
@@ -635,10 +598,7 @@
                     
                     <p class="text-xs theme-text-sub font-medium">취향에 맞는 스타일 테마를 선택해보세요.</p>
 
-                    <!-- Theme Cards Selection Grid -->
                     <div class="grid grid-cols-2 gap-2.5 pt-1" id="theme-selector-grid">
-                        
-                        <!-- 1. Light Theme -->
                         <button onclick="setAppTheme('light')" data-theme-id="light" class="theme-card-btn p-3 rounded-2xl border border-slate-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-slate-50">
                             <div class="flex items-center space-x-2.5">
                                 <span class="text-xl">🌞</span>
@@ -650,7 +610,6 @@
                             <span class="material-symbols-outlined text-emerald-500 text-lg theme-check hidden">check_circle</span>
                         </button>
 
-                        <!-- 2. Dark Theme -->
                         <button onclick="setAppTheme('dark')" data-theme-id="dark" class="theme-card-btn p-3 rounded-2xl border border-slate-700 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-slate-900 text-white">
                             <div class="flex items-center space-x-2.5">
                                 <span class="text-xl">🌙</span>
@@ -662,7 +621,6 @@
                             <span class="material-symbols-outlined text-emerald-400 text-lg theme-check hidden">check_circle</span>
                         </button>
 
-                        <!-- 3. Pastel Theme -->
                         <button onclick="setAppTheme('pastel')" data-theme-id="pastel" class="theme-card-btn p-3 rounded-2xl border border-pink-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-pink-50">
                             <div class="flex items-center space-x-2.5">
                                 <span class="text-xl">🌸</span>
@@ -674,7 +632,6 @@
                             <span class="material-symbols-outlined text-pink-500 text-lg theme-check hidden">check_circle</span>
                         </button>
 
-                        <!-- 4. Nature Theme -->
                         <button onclick="setAppTheme('nature')" data-theme-id="nature" class="theme-card-btn p-3 rounded-2xl border border-emerald-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-emerald-50">
                             <div class="flex items-center space-x-2.5">
                                 <span class="text-xl">🌿</span>
@@ -686,7 +643,6 @@
                             <span class="material-symbols-outlined text-emerald-600 text-lg theme-check hidden">check_circle</span>
                         </button>
 
-                        <!-- 5. Ocean Theme -->
                         <button onclick="setAppTheme('ocean')" data-theme-id="ocean" class="theme-card-btn p-3 rounded-2xl border border-sky-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-sky-50">
                             <div class="flex items-center space-x-2.5">
                                 <span class="text-xl">🌊</span>
@@ -698,7 +654,6 @@
                             <span class="material-symbols-outlined text-sky-600 text-lg theme-check hidden">check_circle</span>
                         </button>
 
-                        <!-- 6. Warm Theme -->
                         <button onclick="setAppTheme('warm')" data-theme-id="warm" class="theme-card-btn p-3 rounded-2xl border border-amber-200 flex items-center justify-between text-left transition-all hover:scale-[1.02] relative overflow-hidden bg-amber-50">
                             <div class="flex items-center space-x-2.5">
                                 <span class="text-xl">🍊</span>
@@ -709,11 +664,9 @@
                             </div>
                             <span class="material-symbols-outlined text-amber-600 text-lg theme-check hidden">check_circle</span>
                         </button>
-
                     </div>
                 </div>
 
-                <!-- Health Score Trend Chart -->
                 <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-3">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-sm theme-text-main flex items-center gap-1.5">
@@ -727,7 +680,6 @@
                     </div>
                 </div>
 
-                <!-- Daily Calorie Consumption Bar Chart -->
                 <div class="theme-bg-card rounded-3xl p-5 border theme-border shadow-stitch space-y-3">
                     <div class="flex items-center justify-between">
                         <h4 class="font-bold text-sm theme-text-main flex items-center gap-1.5">
@@ -743,7 +695,6 @@
             </section>
         </main>
 
-        <!-- Floating Bottom Dock Navigation Bar -->
         <nav class="absolute bottom-0 left-0 right-0 border-t theme-border px-3 py-2 z-40 flex justify-around items-center backdrop-blur-xl transition-all" style="background-color: var(--bottom-nav-bg);">
             <button onclick="switchTab('home')" id="nav-btn-home" class="nav-btn active flex flex-col items-center justify-center w-14 py-1.5 theme-text-primary transition-all active:scale-90">
                 <span class="material-symbols-outlined text-2xl">home</span>
@@ -767,13 +718,11 @@
             </button>
         </nav>
 
-        <!-- Toast Floating Message Box -->
         <div id="toast" class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-slate-900/90 text-white text-xs px-4 py-2.5 rounded-2xl backdrop-blur-md shadow-2xl z-50 transition-all opacity-0 pointer-events-none flex items-center space-x-2 border border-white/10">
             <span id="toast-icon" class="material-symbols-outlined text-emerald-400 text-base">info</span>
             <span id="toast-msg" class="font-medium">메시지 내용</span>
         </div>
 
-        <!-- Meal Detail Modal Dialog -->
         <div id="detail-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
             <div class="theme-bg-card w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto no-scrollbar border theme-border shadow-2xl">
                 <div class="flex items-center justify-between pb-3 border-b theme-border">
@@ -786,12 +735,10 @@
                     </button>
                 </div>
                 <div id="modal-content" class="space-y-3">
-                    <!-- Dynamic modal content -->
                 </div>
             </div>
         </div>
 
-        <!-- Student Profile Edit Modal Dialog -->
         <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
             <div class="theme-bg-card w-full max-w-md rounded-t-[32px] sm:rounded-3xl p-6 space-y-4 border theme-border shadow-2xl">
                 <div class="flex items-center justify-between pb-3 border-b theme-border">
@@ -804,7 +751,6 @@
                     </button>
                 </div>
                 <div class="space-y-3">
-                    <!-- Icon Selection -->
                     <div>
                         <label class="block text-xs font-bold theme-text-sub mb-1.5">프로필 아이콘 선택</label>
                         <div id="profile-icon-selector" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
@@ -818,17 +764,14 @@
                             <button type="button" class="profile-icon-option w-10 h-10 rounded-2xl border theme-border flex items-center justify-center text-xl theme-bg-subtle transition-all" data-emoji="🍎">🍎</button>
                         </div>
                     </div>
-                    <!-- Name -->
                     <div>
                         <label class="block text-xs font-bold theme-text-sub mb-1">이름 / 닉네임</label>
                         <input type="text" id="edit-profile-name" placeholder="이름을 입력하세요" class="w-full px-3.5 py-2.5 text-xs theme-bg-subtle border theme-border rounded-xl focus:outline-none theme-text-main font-semibold">
                     </div>
-                    <!-- School & Grade -->
                     <div>
                         <label class="block text-xs font-bold theme-text-sub mb-1">학교 및 학년 정보</label>
                         <input type="text" id="edit-profile-school" placeholder="예: 서울고등학교 2학년" class="w-full px-3.5 py-2.5 text-xs theme-bg-subtle border theme-border rounded-xl focus:outline-none theme-text-main font-semibold">
                     </div>
-                    <!-- Badge / Title -->
                     <div>
                         <label class="block text-xs font-bold theme-text-sub mb-1">나의 칭호 / 뱃지</label>
                         <input type="text" id="edit-profile-badge" placeholder="예: 급식 영양 가디언 3급" class="w-full px-3.5 py-2.5 text-xs theme-bg-subtle border theme-border rounded-xl focus:outline-none theme-text-main font-semibold">
@@ -845,7 +788,6 @@
     </div>
 
     <script>
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB9IrDPRCanHlflOBV6xB3L377hjjeiyFk",
             authDomain: "white-board-c3c2d.firebaseapp.com",
@@ -863,7 +805,6 @@
             console.warn("Firebase fallback mode activated:", e);
         }
 
-        // Global State
         let currentTheme = 'light';
         let selectedImageData = null;
         let currentAnalysisResult = null;
@@ -873,7 +814,6 @@
         let trendChartInstance = null;
         let calorieChartInstance = null;
 
-        // User Profile State
         let userProfile = {
             icon: '🧑‍🎓',
             name: '건강한 학생 회원',
@@ -891,10 +831,8 @@
             warm: '🍊 Warm'
         };
 
-        // 테마 순환 순서 배열
         const THEME_ORDER = ['light', 'dark', 'pastel', 'nature', 'ocean', 'warm'];
 
-        // GLOBAL EXPOSURES - Attach immediately to window so inline HTML onclicks work right away
         window.switchTab = function(tabId) {
             activeTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -965,7 +903,6 @@
             loadHistoryList();
         };
 
-        // App Initialization
         document.addEventListener('DOMContentLoaded', () => {
             initThemeSystem();
             initDateDisplay();
@@ -1077,7 +1014,6 @@
 
             applyTheme(currentTheme, false);
 
-            // 상단 헤더 팔레트 아이콘 클릭 시 6개 테마를 순서대로 순환 전환
             document.getElementById('dark-mode-toggle').addEventListener('click', () => {
                 const currentIndex = THEME_ORDER.indexOf(currentTheme);
                 const nextIndex = (currentIndex + 1) % THEME_ORDER.length;
@@ -1467,11 +1403,9 @@
         }
 
         function clearAllHistory() {
-            if (confirm('저장된 모든 식사 기록을 삭제하시겠습니까?')) {
-                localStorage.removeItem('meal_history');
-                showToast('모든 기록이 삭제되었습니다.', 'delete');
-                loadHistoryList();
-            }
+            localStorage.removeItem('meal_history');
+            showToast('모든 식사 기록이 삭제되었습니다.', 'delete');
+            loadHistoryList();
         }
 
         const closeBtn = document.getElementById('close-modal-btn');
